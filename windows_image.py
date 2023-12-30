@@ -4,10 +4,7 @@ import os
 
 WIDTH, HEIGHT = 1440, 900
 FPS = 60
-clock = pygame.time.Clock()
-
 pygame.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 
 def terminate():
@@ -15,23 +12,23 @@ def terminate():
     sys.exit()
 
 
-def load_image(name, colorkey=None):
+def load_image(name, colorkeys=None):
     fullname = os.path.join('data', name)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
     image = pygame.image.load(fullname)
-    if colorkey is not None:
-        image = image.convert()
-        if colorkey == -1:
-            colorkey = image.get_at((0, 0))
-        image.set_colorkey(colorkey)
+    if colorkeys is not None:
+        for colorkey in colorkeys:
+            if colorkey == -1:
+                colorkey = image.get_at((1, 1))
+            image.set_colorkey(colorkey)
     else:
         image = image.convert_alpha()
     return image
 
 
-def start_screen():
+def start_screen(screen, clock):
     intro_text = ["Играть",
                   "Инструкция",
                   "Авторы"]
@@ -63,17 +60,17 @@ def start_screen():
                         return
                     elif coords_text[1][0] + coords_text[1][2] > x > coords_text[1][0] and \
                             coords_text[1][1] + coords_text[1][3] > y > coords_text[1][1]:
-                        manual()
+                        manual(screen, clock)
                         return
                     elif coords_text[2][0] + coords_text[2][2] > x > coords_text[2][0] and \
                             coords_text[2][1] + coords_text[2][3] > y > coords_text[2][1]:
-                        authors()
+                        authors(screen, clock)
                         return
         pygame.display.flip()
         clock.tick(FPS)
 
 
-def manual():
+def manual(screen, clock):
     intro_text = ["Не читерить, не багоюзить, не оскорблять нпс, вести себя адекватно",
                   "Пщушгкпришгукерпшг куроепшгркегшщ пргкешгрпгшкерш",
                   "По ходу разработки игры мы доделаем инструкцию :3"]
@@ -105,13 +102,13 @@ def manual():
                     x, y = event.pos
                     if intro_rect.x < x < intro_rect.x + intro_rect.width and \
                             intro_rect.y < y < intro_rect.y + intro_rect.height:
-                        start_screen()
+                        start_screen(screen, clock)
                         return
         pygame.display.flip()
         clock.tick(FPS)
 
 
-def authors():
+def authors(screen, clock):
     intro_text = ["Цырулев А.А.",
                   "Валиев Д.И."]
 
@@ -126,6 +123,7 @@ def authors():
         intro_rect.top = text_coord
         intro_rect.x = 720 - intro_rect.width // 2
         text_coord += intro_rect.height
+        string_rendered.set_alpha(100)
         screen.blit(string_rendered, intro_rect)
     font = pygame.font.Font(None, 80)
     string_rendered = font.render('Назад', True, 'white', pygame.Color((153, 92, 51)))
@@ -142,19 +140,20 @@ def authors():
                     x, y = event.pos
                     if intro_rect.x < x < intro_rect.x + intro_rect.width and \
                             intro_rect.y < y < intro_rect.y + intro_rect.height:
-                        start_screen()
+                        start_screen(screen, clock)
                         return
         pygame.display.flip()
         clock.tick(FPS)
 
 
-def window_with_text():
+def window_with_text(screen, clock):
+    screen.fill('black')
     number_text = 0
     plot_text = [["Будем доделывать", "Сюжет"],
-                 ['11231212', 'АААААА'],
-                 ['11231212', 'АААААА'],
-                 ['11231212', 'АААААА'],
-                 ['11231212', '123АА']]
+                 ['2', 'АААААА'],
+                 ['3', 'АААААА'],
+                 ['4', 'АААААА'],
+                 ['5', '123АА']]
 
     fon = pygame.transform.scale(load_image('window_with_text.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
@@ -166,22 +165,21 @@ def window_with_text():
                 terminate()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    number_text += 1
+                    if event.pos[0] < 720 and number_text != 0:
+                        number_text -= 1
+                    elif event.pos[0] >= 720:
+                        number_text += 1
                     if number_text + 1 > len(plot_text):
                         return
         screen.blit(fon, (0, 0))
         text_coord = 300
         for line in plot_text[number_text]:
             string_rendered = font.render(line, True, (51, 51, 51), (204, 204, 204))
-            intro_rect = string_rendered.get_rect()
+            plot_rect = string_rendered.get_rect()
             text_coord += 15
-            intro_rect.top = text_coord
-            intro_rect.x = 720 - intro_rect.width // 2
-            text_coord += intro_rect.height
-            screen.blit(string_rendered, intro_rect)
+            plot_rect.top = text_coord
+            plot_rect.x = 720 - plot_rect.width // 2
+            text_coord += plot_rect.height
+            screen.blit(string_rendered, plot_rect)
         pygame.display.flip()
         clock.tick(FPS)
-
-
-start_screen()
-window_with_text()
