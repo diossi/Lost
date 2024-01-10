@@ -13,7 +13,9 @@ def load_image(name, colorkey=None):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
     image = pygame.image.load(fullname)
-    if colorkey is not None:
+    if colorkey == -2:
+        return image
+    elif colorkey is not None:
         if colorkey == -1:
             colorkey = image.get_at((1, 1))
         image.set_colorkey(colorkey)
@@ -22,39 +24,35 @@ def load_image(name, colorkey=None):
     return image
 
 
-class Tile(pygame.sprite.Sprite):
-    def __init__(self, tile_type, pos_x, pos_y):
-        super().__init__(tiles_group, all_sprites)
-        self.image = tile_images[tile_type]
-        self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
+class Background(pygame.sprite.Sprite):
+    def __init__(self, background_name, pos_x, pos_y):
+        super().__init__(background_group, all_sprites)
+        self.image = load_image(background_name, -2)
+        self.image = pygame.transform.scale(self.image, (3840, 3840))
+        self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
         self.image = player_image
-        self.rect = self.image.get_rect().move(
-            tile_width * pos_x + 15, tile_height * pos_y + 5)
+        self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
         self.pos = (pos_x, pos_y)
+        self.directions = []
 
     def move_hero(self, direction):
         if direction == 'up':
             self.pos = (self.pos[0], self.pos[1] - 1)
-            self.rect = self.image.get_rect().move(
-                tile_width * self.pos[0] + 15, tile_height * self.pos[1] + 5)
+            self.rect = self.image.get_rect().move(self.rect.x, self.rect.y - move_hero)
         elif direction == 'down':
             self.pos = (self.pos[0], self.pos[1] + 1)
-            self.rect = self.image.get_rect().move(
-                tile_width * self.pos[0] + 15, tile_height * self.pos[1] + 5)
+            self.rect = self.image.get_rect().move(self.rect.x, self.rect.y + move_hero)
         elif direction == 'left':
             self.pos = (self.pos[0] - 1, self.pos[1])
-            self.rect = self.image.get_rect().move(
-                tile_width * self.pos[0] + 15, tile_height * self.pos[1] + 5)
+            self.rect = self.image.get_rect().move(self.rect.x - move_hero, self.rect.y)
         elif direction == 'right':
             self.pos = (self.pos[0] + 1, self.pos[1])
-            self.rect = self.image.get_rect().move(
-                tile_width * self.pos[0] + 15, tile_height * self.pos[1] + 5)
+            self.rect = self.image.get_rect().move(self.rect.x + move_hero, self.rect.y)
 
 
 class Camera:
@@ -87,9 +85,14 @@ class Camera:
         self.dy = HEIGHT // 2 - (target.rect.y + target.rect.h // 2)
 
 
-tile_width, tile_height = 45, 45
+move_hero = 48
+tile_width, tile_height = 48, 48
 
+player_image = load_image('player2.png', -1)
+player_image = pygame.transform.scale(player_image, (48, 48))
 all_sprites = pygame.sprite.Group()
-tiles_group = pygame.sprite.Group()
+background_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 tile_images = {}
+Background('rpgmap.png', 0, 0)
+player = Player(5, 35)
