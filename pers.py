@@ -39,6 +39,9 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
         self.pos = (pos_x, pos_y)
         self.directions = []
+        self.hp = 50
+        self.mana = 5
+        self.full_mana = 10
 
     def move_hero(self, direction):
         if direction == 'up':
@@ -96,3 +99,5 @@ player_group = pygame.sprite.Group()
 tile_images = {}
 Background('rpgmap.png', 0, 0)
 player = Player(5, 35)
+icon2 = load_image('player2.png', -2)
+icon2 = pygame.transform.scale(icon2, (50, 50))
