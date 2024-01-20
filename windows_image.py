@@ -71,9 +71,14 @@ def start_screen(screen, clock):
 
 
 def manual(screen, clock):
-    intro_text = ["Не читерить, не багоюзить, не оскорблять нпс, вести себя адекватно",
-                  "Пщушгкпришгукерпшг куроепшгркегшщ пргкешгрпгшкерш",
-                  "По ходу разработки игры мы доделаем инструкцию :3"]
+    intro_text = ["Передвижение - WASD(стрелочки)",
+                  "Атаковать - SPACE(пробел)",
+                  "Атаковать магией - Q",
+                  'Чтобы получить уровень, нужно убивать монстров или выполнять задания',
+                  'При получении уровня вы получаете 1 единицу прокачки, с помощью которой',
+                  'вы можете прокачать силу, ловкость и интеллект(на выбор)',
+                  'На каждой локации есть магазин(один из домов), чтобы открыть его нужно',
+                  'подойти к дому и нажать E']
 
     fon = pygame.transform.scale(load_image('start_window.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
@@ -123,7 +128,6 @@ def authors(screen, clock):
         intro_rect.top = text_coord
         intro_rect.x = 720 - intro_rect.width // 2
         text_coord += intro_rect.height
-        string_rendered.set_alpha(100)
         screen.blit(string_rendered, intro_rect)
     font = pygame.font.Font(None, 80)
     string_rendered = font.render('Назад', True, 'white', pygame.Color((153, 92, 51)))
@@ -149,11 +153,17 @@ def authors(screen, clock):
 def window_with_text(screen, clock):
     screen.fill('black')
     number_text = 0
-    plot_text = [["Будем доделывать", "Сюжет"],
-                 ['2', 'АААААА'],
-                 ['3', 'АААААА'],
-                 ['4', 'АААААА'],
-                 ['5', '123АА']]
+    plot_text = [["Вы оказались в каком-то непонятном месте,",
+                  "вокруг неизвестная вам земля.",
+                  "Вы пытаетесь вспомнить, как вы здесь оказались."],
+                 ['Ничего не вспомнив вы решаете осмотреться.',
+                  'Увидев записку на земле вы решаете',
+                  'ее поднять и прочитать.'],
+                 ['Из нее вы понимате, что это не ваш мир',
+                  ' и вы оказались в чужом теле.',
+                  'Также из нее вы узнаете что в этом мире есть магия.'],
+                 ['В конце записки написано, что в этой вселенной есть маг,', 'который может перемещать между мирами.'],
+                 ['Вы решаетесь пойти по тропинке,', 'чтобы узнать, как попасть обратно в ваш мир.']]
 
     fon = pygame.transform.scale(load_image('window_with_text.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
@@ -183,3 +193,38 @@ def window_with_text(screen, clock):
             screen.blit(string_rendered, plot_rect)
         pygame.display.flip()
         clock.tick(FPS)
+
+
+def open_final_window(screen, flag_end, sum_gold, sum_xp, lvl, sum_kill, time):
+    if flag_end == 'win':
+        text_end = 'Вы выиграли!!!'
+    elif flag_end == 'lose':
+        text_end = 'Вы погибли :c'
+    else:
+        text_end = 'Вы вышли'
+
+    text_end = pygame.font.Font(None, 50).render(text_end, True, (51, 51, 51))
+    text_gold = pygame.font.Font(None, 50).render('Сумма золота: ' + str(sum_gold), True, (51, 51, 51))
+    text_xp = pygame.font.Font(None, 50).render('Сумма опыта: ' + str(sum_xp), True, (51, 51, 51))
+    text_lvl = pygame.font.Font(None, 50).render('Ваш уровень: ' + str(lvl), True, (51, 51, 51))
+    text_kill = pygame.font.Font(None, 50).render('Сумма убийств: ' + str(sum_kill), True, (51, 51, 51))
+    text_time = pygame.font.Font(None, 50).render('Время в игре: ' + str(time // 60) + ' Минут', True, (51, 51, 51))
+    text_score = pygame.font.Font(None, 50).render('Общий счет: ' + str(sum_xp + sum_gold + sum_kill + time // 1 + lvl),
+                                                   True, (51, 51, 51))
+
+    screen.fill((206, 206, 206))
+    
+    screen.blit(text_end, (600, 100))
+    screen.blit(text_gold, (200, 300))
+    screen.blit(text_xp, (200, 500))
+    screen.blit(text_lvl, (600, 300))
+    screen.blit(text_kill, (1000, 300))
+    screen.blit(text_time, (1000, 500))
+    screen.blit(text_score, (1000, 700))
+
+    pygame.display.flip()
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
